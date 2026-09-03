@@ -75,6 +75,10 @@ class AudioLensConfigurable : Configurable {
         }
         val testSftpButton = JButton("测试 SFTP")
         val clearRemoteCacheButton = JButton("清理下载缓存")
+        val remoteCachePath = JBTextField(RemoteAudioCacheService.cacheRootPath().toString()).apply {
+            isEditable = false
+            toolTipText = text
+        }
         val sftpButtons = JPanel(BorderLayout(8, 0)).apply {
             add(testSftpButton, BorderLayout.WEST)
             add(clearRemoteCacheButton, BorderLayout.EAST)
@@ -143,6 +147,7 @@ class AudioLensConfigurable : Configurable {
             .addLabeledComponent(labelWithHelp("代码中的路径前缀（可选）：", "仅匹配以此前缀开头的代码路径；匹配后会移除该前缀，再拼接远端基目录。"), remotePathPrefix)
             .addLabeledComponent(labelWithHelp("远端基目录（可选）：", "服务器上的音频根目录，与移除前缀后的相对路径组合成最终 SFTP 路径。"), remoteBasePath)
             .addLabeledComponent(labelWithHelp("下载缓存上限（MB）：", "远端普通音频的本地缓存容量上限；超过后优先清理最久未使用的文件。"), remoteCacheMax)
+            .addLabeledComponent(labelWithHelp("默认下载缓存目录：", "远端普通音频下载后保存在此本地目录；该路径位于 PyCharm 的 system 目录下，可选中并复制。"), remoteCachePath)
             .addComponent(JBLabel("示例：前缀 /data + 基目录 /mnt/datasets，会把 /data/a.wav 映射为 /mnt/datasets/a.wav。"))
             .addComponent(JBLabel("不支持远端 .ark 和 .ark:offset；请先下载到本地。"))
             .addComponent(sftpButtons)

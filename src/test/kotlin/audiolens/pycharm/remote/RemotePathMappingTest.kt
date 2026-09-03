@@ -1,10 +1,19 @@
 package audiolens.pycharm.remote
 
+import java.nio.file.Path
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
 class RemotePathMappingTest {
+    @Test
+    fun `remote cache path is rooted below the PyCharm system directory`() {
+        assertEquals(
+            Path.of("/tmp/pycharm-system", "audiolens", "remote-cache"),
+            RemoteAudioCacheService.cacheRootPath("/tmp/pycharm-system"),
+        )
+    }
+
     @Test
     fun `keeps absolute paths unchanged when no mapping is configured`() {
         assertEquals("/datasets/train/sample.wav", RemotePathMapping.map("/datasets/train/sample.wav", "", ""))

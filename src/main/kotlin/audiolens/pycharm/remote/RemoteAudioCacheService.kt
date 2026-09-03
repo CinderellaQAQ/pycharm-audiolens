@@ -216,8 +216,11 @@ class RemoteAudioCacheService(@Suppress("unused") private val project: Project) 
         private const val MEBIBYTE = 1024L * 1024L
         private const val METADATA_SUFFIX = ".metadata"
         private val CACHE_LOCK = Any()
+        internal fun cacheRootPath(systemPath: String = PathManager.getSystemPath()): Path =
+            Path.of(systemPath, "audiolens", "remote-cache")
+
         private val cacheRoot: Path
-            get() = Path.of(PathManager.getSystemPath(), "audiolens", "remote-cache")
+            get() = cacheRootPath()
 
         private fun metadataFile(audioFile: Path): Path = audioFile.resolveSibling("${audioFile.fileName}$METADATA_SUFFIX")
 
