@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "io.github.simzhou.audiolens"
-version = "1.0.1"
+version = "1.0.2"
 
 val localPycharmPath = providers.gradleProperty("localPycharmPath").orNull
 val verificationPycharmPaths = providers.gradleProperty("verificationPycharmPaths").orNull
@@ -83,10 +83,9 @@ intellijPlatform {
             untilBuild = "261.*"
         }
         changeNotes = """
-            <p>AudioLens for PyCharm 1.0.1.</p>
+            <p>AudioLens for PyCharm 1.0.2.</p>
             <ul>
-              <li>Shows the actual local directory used to cache downloaded remote audio files.</li>
-              <li>Updates the upstream-project attribution in the README.</li>
+              <li>Marks the exclusive audio file editor provider as indexing-safe, preventing the first-open HIDE_DEFAULT_EDITOR internal error.</li>
             </ul>
         """.trimIndent()
     }

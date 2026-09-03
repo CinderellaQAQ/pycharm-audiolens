@@ -4,7 +4,9 @@ import audiolens.pycharm.remote.RemoteAudioCacheService
 import com.intellij.openapi.fileTypes.FileTypeManager
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.service
+import com.intellij.openapi.fileEditor.FileEditorPolicy
 import com.intellij.openapi.progress.EmptyProgressIndicator
+import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
 import com.intellij.openapi.util.Disposer
 import com.intellij.testFramework.LightVirtualFile
@@ -36,6 +38,14 @@ class AudioLensFileTypeRegistrationTest : BasePlatformTestCase() {
         } finally {
             Disposer.dispose(rootAccessDisposable)
         }
+    }
+
+    @Test
+    fun testHideDefaultEditorProviderIsDumbAware() {
+        val provider = AudioLensFileEditorProvider()
+
+        assertSame(FileEditorPolicy.HIDE_DEFAULT_EDITOR, provider.policy)
+        assertTrue(DumbAware::class.java.isAssignableFrom(provider.javaClass))
     }
 
     @Test
