@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "io.github.simzhou.audiolens"
-version = "1.8.11-pycharm.9"
+version = "1.0.0"
 
 val localPycharmPath = providers.gradleProperty("localPycharmPath").orNull
 val verificationPycharmPaths = providers.gradleProperty("verificationPycharmPaths").orNull
@@ -83,7 +83,7 @@ intellijPlatform {
             untilBuild = "261.*"
         }
         changeNotes = """
-            <p>AudioLens 1.8.11 for PyCharm.</p>
+            <p>AudioLens for PyCharm 1.0.0.</p>
             <ul>
               <li>Adds adaptive, source PCM sample-value, and symmetric dBFS waveform amplitude scales.</li>
               <li>Localizes the PyCharm configuration page in Chinese and adds contextual help for its parameters.</li>
