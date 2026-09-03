@@ -1,0 +1,10 @@
+AudioLens for PyCharm
+Copyright 2026 AudioLens contributors
+
+This product includes software derived from AudioLens for VS Code
+(https://github.com/SimZhou/vscode-audiolens), licensed under the Apache
+License, Version 2.0.
+
+The original TypeScript web interface and signal-analysis implementation
+remain under their upstream copyright notices. The JetBrains Platform host
+integration is a separate Kotlin implementation created for this port.

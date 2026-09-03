@@ -1,0 +1,7 @@
+<idea-plugin>
+    <extensions defaultExtensionNs="com.intellij">
+        <projectService
+                serviceInterface="audiolens.pycharm.remote.SftpRemoteAudioProvider"
+                serviceImplementation="audiolens.pycharm.remote.PyCharmDeploymentSftpProvider"/>
+    </extensions>
+</idea-plugin>

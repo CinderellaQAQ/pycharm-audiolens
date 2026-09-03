@@ -1,0 +1,67 @@
+<idea-plugin>
+    <id>io.github.simzhou.audiolens</id>
+    <name>AudioLens</name>
+    <vendor url="https://github.com/SimZhou/vscode-audiolens">AudioLens contributors</vendor>
+
+    <description><![CDATA[
+      Inspect audio files directly in PyCharm with synchronized waveforms and spectrograms,
+      multichannel playback, selection measurements, raw PCM parameters, and Kaldi WAV ark support.
+      Local PyCharm projects can download ordinary remote audio through an existing PyCharm SFTP
+      Deployment configuration and reuse a bounded local cache. Remote Ark files are not supported.
+      Audio is never sent to a third-party service. FFmpeg is optional and is never downloaded by the plugin.
+    ]]></description>
+
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.python</depends>
+    <depends optional="true" config-file="audiolens-sftp.xml">com.jetbrains.plugins.webDeployment</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <applicationService serviceImplementation="audiolens.pycharm.settings.AudioLensSettings"/>
+        <applicationService serviceImplementation="audiolens.pycharm.web.AudioLensSessionRegistry"/>
+        <applicationService serviceImplementation="audiolens.pycharm.diagnostics.AudioLensDiagnosticsService"/>
+        <projectService serviceImplementation="audiolens.pycharm.ark.ArkSelectionService"/>
+        <projectService serviceImplementation="audiolens.pycharm.audio.AudioCacheCoordinator"/>
+        <projectService serviceImplementation="audiolens.pycharm.remote.RemoteAudioCacheService"/>
+        <editorFactoryListener implementation="audiolens.pycharm.navigation.AudioPathEditorFactoryListener"/>
+        <applicationConfigurable
+                id="audiolens.pycharm.settings"
+                displayName="AudioLens"
+                parentId="tools"
+                instance="audiolens.pycharm.settings.AudioLensConfigurable"/>
+        <fileType
+                name="AudioLens Audio"
+                implementationClass="audiolens.pycharm.editor.AudioLensFileType"
+                fieldName="INSTANCE"
+                extensions="wav;mp3;flac;ogg;opus;m4a;aac;pcm;raw;ark"/>
+        <fileEditorProvider implementation="audiolens.pycharm.editor.AudioLensFileEditorProvider" order="first"/>
+        <httpRequestHandler implementation="audiolens.pycharm.web.AudioLensHttpRequestHandler"/>
+        <notificationGroup id="AudioLens" displayType="BALLOON" isLogByDefault="true"/>
+    </extensions>
+
+    <actions>
+        <action id="audiolens.pycharm.openKaldiWavArk"
+                class="audiolens.pycharm.ark.OpenKaldiArkAction"
+                text="Open Kaldi WAV from Ark…"
+                description="Open a WAV record embedded in a Kaldi ark file">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </action>
+        <action id="audiolens.pycharm.copyDiagnostics"
+                class="audiolens.pycharm.diagnostics.CopyAudioLensDiagnosticsAction"
+                text="Copy AudioLens Diagnostics"
+                description="Copy privacy-safe AudioLens, FFmpeg, and SFTP diagnostics to the clipboard">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </action>
+        <action id="audiolens.pycharm.openRemoteAudio"
+                class="audiolens.pycharm.remote.OpenRemoteAudioAction"
+                text="Open Remote Audio via SFTP…"
+                description="Download and open an audio file using a PyCharm SFTP configuration">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </action>
+        <action id="audiolens.pycharm.clearRemoteAudioCache"
+                class="audiolens.pycharm.remote.ClearRemoteAudioCacheAction"
+                text="Clear AudioLens Remote Cache"
+                description="Remove audio files downloaded by AudioLens from SFTP">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </action>
+    </actions>
+</idea-plugin>

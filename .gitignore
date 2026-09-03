@@ -1,0 +1,51 @@
+node_modules/
+.gradle/
+.kotlin/
+.intellijPlatform/
+build/
+target/
+dist/*
+!dist/
+!dist/*.js
+dist/*.map
+*.vsix
+.DS_Store
+.vscode-test/
+coverage/
+npm-debug.log*
+.tmp/
+
+# Agent / AI coding local context
+AGENTS.md
+CLAUDE.md
+GEMINI.md
+.agents/
+.claude/
+.codex/
+.cursor/
+.cursorrules
+.windsurf/
+.windsurfrules
+.aider*
+.roo/
+.kilocode/
+
+# Internal planning docs
+docs/
+!docs/
+docs/*
+!docs/assets/
+!docs/assets/readme/
+!docs/assets/readme/*
+docs/assets/readme/.DS_Store
+docs/roadmap.md
+
+# Local audio fixtures
+tests/audio/
+
+# Local tests
+tests/
+
+# Local design assets
+AudioLens_logo.v1.png
+resume.sh

@@ -1,0 +1,298 @@
+{
+  "name": "audiolens",
+  "displayName": "AudioLens — Audio inspection for VS Code",
+  "description": "Audio viewer for speech and ML workflows with waveforms, spectrograms, raw PCM, Kaldi wav ark, and Remote SSH support.",
+  "version": "1.8.11",
+  "publisher": "simzhou",
+  "license": "Apache-2.0",
+  "icon": "logo/icon.png",
+  "galleryBanner": {
+    "color": "#111827",
+    "theme": "dark"
+  },
+  "qna": "marketplace",
+  "extensionKind": [
+    "workspace"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SimZhou/vscode-audiolens.git"
+  },
+  "bugs": {
+    "url": "https://github.com/SimZhou/vscode-audiolens/issues"
+  },
+  "homepage": "https://github.com/SimZhou/vscode-audiolens#readme",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": [
+    "Visualization",
+    "Data Science",
+    "Machine Learning"
+  ],
+  "keywords": [
+    "audio",
+    "audio-preview",
+    "audio-viewer",
+    "audio-analysis",
+    "waveform",
+    "waveform-viewer",
+    "spectrogram",
+    "spectrogram-viewer",
+    "speech",
+    "speech-recognition",
+    "speech-dataset",
+    "audio-dataset",
+    "audio-annotation",
+    "machine-learning",
+    "data-science",
+    "kaldi",
+    "wav-ark",
+    "wav",
+    "mp3",
+    "flac",
+    "ogg",
+    "remote-ssh",
+    "remote-development",
+    "pcm",
+    "raw-pcm",
+    "raw-audio",
+    "pcm-viewer",
+    "fft",
+    "stft",
+    "dbfs"
+  ],
+  "activationEvents": [
+    "onLanguage",
+    "onCustomEditor:audiolens.audioPreview",
+    "onCommand:audiolens.selectLanguage",
+    "onCommand:audiolens.openKaldiWavArk",
+    "onCommand:audiolens.openAudioPathLink",
+    "onCommand:audiolens.openAudioPathAtCursor",
+    "onCommand:audiolens.toggleAudioPathLinks"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "audiolens.selectLanguage",
+        "title": "%command.selectLanguage.title%",
+        "category": "%command.category%"
+      },
+      {
+        "command": "audiolens.openKaldiWavArk",
+        "title": "%command.openKaldiWavArk.title%",
+        "category": "%command.category%"
+      },
+      {
+        "command": "audiolens.openAudioPathAtCursor",
+        "title": "%command.openAudioPathAtCursor.title%",
+        "category": "%command.category%"
+      },
+      {
+        "command": "audiolens.toggleAudioPathLinks",
+        "title": "%command.toggleAudioPathLinks.title%",
+        "category": "%command.category%"
+      }
+    ],
+    "customEditors": [
+      {
+        "viewType": "audiolens.audioPreview",
+        "displayName": "AudioLens",
+        "selector": [
+          {
+            "filenamePattern": "*.wav"
+          },
+          {
+            "filenamePattern": "*.mp3"
+          },
+          {
+            "filenamePattern": "*.flac"
+          },
+          {
+            "filenamePattern": "*.ogg"
+          },
+          {
+            "filenamePattern": "*.opus"
+          },
+          {
+            "filenamePattern": "*.m4a"
+          },
+          {
+            "filenamePattern": "*.aac"
+          },
+          {
+            "filenamePattern": "*.pcm"
+          },
+          {
+            "filenamePattern": "*.raw"
+          },
+          {
+            "filenamePattern": "*.ark"
+          }
+        ],
+        "priority": "default"
+      }
+    ],
+    "configuration": {
+      "title": "AudioLens",
+      "properties": {
+        "audiolens.autoAnalyze": {
+          "type": "boolean",
+          "default": true,
+          "description": "打开音频后自动计算频谱。"
+        },
+        "audiolens.language": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "zh-CN",
+            "zh-TW",
+            "en",
+            "ja",
+            "ko",
+            "fr",
+            "de",
+            "ru",
+            "es",
+            "it",
+            "pt",
+            "id",
+            "no",
+            "nl",
+            "pl",
+            "tr",
+            "vi"
+          ],
+          "enumDescriptions": [
+            "Use VS Code display language",
+            "中文（简体）",
+            "中文（繁體）",
+            "English",
+            "日本語",
+            "한국어",
+            "Français",
+            "Deutsch",
+            "Русский",
+            "Español",
+            "Italiano",
+            "Português",
+            "Bahasa Indonesia",
+            "Norsk",
+            "Nederlands",
+            "Polski",
+            "Türkçe",
+            "Tiếng Việt"
+          ],
+          "default": "auto",
+          "description": "Controls the AudioLens Webview language."
+        },
+        "audiolens.analysis.windowFunction": {
+          "type": "string",
+          "enum": [
+            "rectangular",
+            "bartlett",
+            "hamming",
+            "hann",
+            "blackman",
+            "blackmanHarris",
+            "welch",
+            "gaussian25",
+            "gaussian35",
+            "gaussian45"
+          ],
+          "default": "hamming",
+          "description": "默认频谱窗函数。"
+        },
+        "audiolens.analysis.fftSize": {
+          "type": "number",
+          "enum": [
+            8,
+            16,
+            32,
+            64,
+            128,
+            256,
+            512,
+            1024,
+            2048,
+            4096,
+            8192,
+            16384,
+            32768
+          ],
+          "default": 512,
+          "description": "默认 FFT 长度。"
+        },
+        "audiolens.analysis.zeroPaddingFactor": {
+          "type": "number",
+          "enum": [
+            1,
+            2,
+            4,
+            8,
+            16,
+            32,
+            64,
+            128
+          ],
+          "default": 2,
+          "description": "默认频谱零填充因子；为控制内存占用，FFT 长度与零填充因子的乘积最多为 131072。"
+        },
+        "audiolens.maxFileSizeMB": {
+          "type": "number",
+          "default": 512,
+          "minimum": 16,
+          "description": "允许读取并传输到 Webview 的源音频文件大小上限；不限制扩展端的磁盘 PCM 缓存。"
+        },
+        "audiolens.profileSpectrogram": {
+          "type": "boolean",
+          "default": false,
+          "description": "在 Webview 开发者工具中输出频谱图分析和绘制耗时。用于本地性能诊断，普通使用建议保持关闭。"
+        },
+        "audiolens.audioPathLinks.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "启用普通文本文件中的音频路径入口。关闭后 AudioLens 不再提供 hover、状态栏或命令打开入口。"
+        },
+        "audiolens.audioPathLinks.maxLineLength": {
+          "type": "number",
+          "default": 20000,
+          "minimum": 1,
+          "description": "音频路径入口单行最大解析字符数。超过该长度的行会被跳过，以避免超长行影响编辑性能。"
+        },
+        "audiolens.audioPathLinks.baseDirectories": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "普通文本音频路径超链解析相对路径时额外尝试的绝对 base directory。"
+        }
+      }
+    }
+  },
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": "limited",
+      "description": "AudioLens 在不受信任工作区中只显示文件信息，不传输音频内容到 Webview。"
+    }
+  },
+  "scripts": {
+    "clean": "node scripts/clean.mjs",
+    "build": "node scripts/build.mjs",
+    "build:pycharm": "node scripts/build-pycharm.mjs",
+    "watch": "node scripts/build.mjs --watch",
+    "typecheck": "tsc --noEmit",
+    "test:web": "node scripts/test-web.mjs",
+    "rust:test": "cargo test --workspace",
+    "package": "npm run clean && npm run build && npx @vscode/vsce package -o dist/",
+    "vscode:prepublish": "npm run clean && npm run build"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.1",
+    "@types/vscode": "1.74.0",
+    "esbuild": "^0.28.1",
+    "typescript": "^5.7.2"
+  }
+}
