@@ -2,6 +2,8 @@
 
 这是vscode-audiolens的 PyCharm 移植版。原作者仓库：[AudioLens for VS Code](https://github.com/SimZhou/vscode-audiolens)，欢迎大家给原作者star。
 
+本项目代码全程由 GPT 5.6 Solution 负责开发。
+
 ## 下载
 
 [下载 v1.0.2（pycharm-audiolens-1.0.2.zip）](https://github.com/CinderellaQAQ/pycharm-audiolens/releases/download/v1.0.2/pycharm-audiolens-1.0.2.zip)
