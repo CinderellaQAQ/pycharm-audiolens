@@ -6,6 +6,7 @@ export const messages = {
   spectrogramSettings: "频谱图设置",
   help: "帮助",
   downloadAudio: "下载音频",
+  revealAudioInFolder: "打开音频所在文件夹",
   downloadSelection: "下载选区",
   downloadSelectionWav: "下载选区为 WAV",
   clearSelection: "清除选区",

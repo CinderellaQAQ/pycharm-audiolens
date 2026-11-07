@@ -105,6 +105,7 @@ export type WebviewMessage =
   | { type: "readStreamedAudioWindows"; requestId: number; channel: number; startSample: number; endSample: number; windowSize: number; hopSize: number; maxFrames: number }
   | { type: "saveStreamedSelectionWav"; requestId: number; fileName: string; startTime: number; endTime: number; saveLabel?: string; title?: string }
   | { type: "downloadAudio" }
+  | { type: "revealAudioInFolder" }
   | { type: "requestSelectionWavSave"; requestId: number; fileName: string; saveLabel?: string; title?: string }
   | { type: "writeSelectionWavChunk"; requestId: number; fileName: string; chunkIndex: number; bytesBase64: string; isLast: boolean }
   | { type: "updatePreferences"; preferences: AudioLensPreferences }

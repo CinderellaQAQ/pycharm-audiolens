@@ -12,6 +12,7 @@ export interface ViewElements {
   zeroPaddingFactor: HTMLSelectElement;
   settingsToggle: HTMLButtonElement;
   downloadAudio: HTMLButtonElement;
+  revealAudioInFolder: HTMLButtonElement;
   helpMenu: HTMLElement;
   settingsPanel: HTMLElement;
   windowFunction: HTMLSelectElement;
@@ -160,6 +161,12 @@ export function renderShell(root: HTMLDivElement): ViewElements {
               <path d="M6.75 3.5h7.5L19 8.25v12.25H6.75z" />
               <path d="M14.25 3.5v4.75H19" />
               <path d="M9.25 12.25h6.5M9.25 15.25h6.5M9.25 18.25h4.25" />
+            </svg>
+          </button>
+          <button id="revealAudioInFolder" class="iconButton secondaryIcon revealAudioButton" data-i18n-title="revealAudioInFolder" data-i18n-aria="revealAudioInFolder" data-i18n-tooltip="revealAudioInFolder" title="Show audio in folder" aria-label="Show audio in folder" data-tooltip="Show audio in folder">
+            <svg class="revealAudioIcon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M3.5 6.75h6l1.75 2H20.5v9.5a1.5 1.5 0 0 1-1.5 1.5H5a1.5 1.5 0 0 1-1.5-1.5z" />
+              <path d="M3.5 9.25h17" />
             </svg>
           </button>
           <button id="downloadAudio" class="iconButton secondaryIcon downloadButton" data-i18n-title="downloadAudio" data-i18n-aria="downloadAudio" data-i18n-tooltip="downloadAudio" title="Download audio" aria-label="Download audio" data-tooltip="Download audio">↓</button>
@@ -635,6 +642,7 @@ export function renderShell(root: HTMLDivElement): ViewElements {
     zeroPaddingFactor: query("#zeroPaddingFactor", HTMLSelectElement),
     settingsToggle: query("#settingsToggle", HTMLButtonElement),
     downloadAudio: query("#downloadAudio", HTMLButtonElement),
+    revealAudioInFolder: query("#revealAudioInFolder", HTMLButtonElement),
     helpMenu: query("#helpMenu", HTMLElement),
     settingsPanel: query("#settingsPanel", HTMLElement),
     windowFunction: query("#windowFunction", HTMLSelectElement),

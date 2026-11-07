@@ -139,6 +139,16 @@ export function injectStyles(): void {
       font-size: 18px;
       line-height: 1;
     }
+    .revealAudioIcon {
+      width: 19px;
+      height: 19px;
+      display: block;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.7;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
     #settingsToggle {
       position: relative;
       width: 32px;

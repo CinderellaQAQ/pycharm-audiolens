@@ -6,7 +6,7 @@
 
 ## 下载
 
-[下载 v1.1.0（pycharm-audiolens-1.1.0.zip）](https://github.com/CinderellaQAQ/pycharm-audiolens/releases/download/v1.1.0/pycharm-audiolens-1.1.0.zip)
+[下载 v1.2.0（pycharm-audiolens-1.2.0.zip）](https://github.com/CinderellaQAQ/pycharm-audiolens/releases/download/v1.2.0/pycharm-audiolens-1.2.0.zip)
 
 在 PyCharm 的“设置/偏好设置 → 插件”中选择“从磁盘安装插件”，然后选择下载的 ZIP 文件即可。支持 PyCharm 内部版本 251–261。
 
@@ -18,3 +18,4 @@
 - 提供中文配置页面，并为音频、频谱图、PCM、FFmpeg 等参数增加问号说明。
 - 选区分析改为右键菜单触发，分析窗口可单独关闭。
 - 改进 FFmpeg 和远程文件错误提示，并支持一键复制隐私安全的诊断信息。
+- 右上角可在系统文件管理器中定位当前音频；SSH/SFTP 音频会定位到对应的本地缓存文件。

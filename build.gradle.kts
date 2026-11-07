@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "io.github.simzhou.audiolens"
-version = "1.1.0"
+version = "1.2.0"
 
 val localPycharmPath = providers.gradleProperty("localPycharmPath").orNull
 val verificationPycharmPaths = providers.gradleProperty("verificationPycharmPaths").orNull
@@ -83,10 +83,10 @@ intellijPlatform {
             untilBuild = "261.*"
         }
         changeNotes = """
-            <p>AudioLens for PyCharm 1.1.0.</p>
+            <p>AudioLens for PyCharm 1.2.0.</p>
             <ul>
-              <li>Moves channel, view, gain, and pan controls above each audio track.</li>
-              <li>Adds frame- or second-based playback range inputs synchronized with waveform clicks and dragged selections.</li>
+              <li>Adds a top-right button that reveals local audio in its containing folder.</li>
+              <li>For SSH/SFTP audio, the same button reveals the downloaded local cache file.</li>
             </ul>
         """.trimIndent()
     }

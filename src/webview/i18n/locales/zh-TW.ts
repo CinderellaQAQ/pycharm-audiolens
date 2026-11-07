@@ -75,6 +75,7 @@ export const messages = {
   mouseWheel: "滑鼠滾輪",
   help: "說明",
   downloadAudio: "下載音訊",
+  revealAudioInFolder: "開啟音訊所在資料夾",
   downloadSelection: "下載選區",
   downloadSelectionWav: "下載選區為 WAV",
   clearSelection: "清除選區",

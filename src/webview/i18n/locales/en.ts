@@ -6,6 +6,7 @@ export const messages = {
   spectrogramSettings: "Spectrogram settings",
   help: "Help",
   downloadAudio: "Download audio",
+  revealAudioInFolder: "Show audio in folder",
   downloadSelection: "Download Selection",
   downloadSelectionWav: "Download selection as WAV",
   clearSelection: "Clear selection",

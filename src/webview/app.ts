@@ -2013,6 +2013,9 @@ export class AudioLensApp {
     this.elements.downloadAudio.addEventListener("click", () => {
       this.downloadCurrentAudio();
     });
+    this.elements.revealAudioInFolder.addEventListener("click", () => {
+      this.vscode.postMessage({ type: "revealAudioInFolder" });
+    });
     this.elements.audio.addEventListener("play", () => {
       this.elements.play.textContent = "⏸";
       this.startPlaybackTicker();

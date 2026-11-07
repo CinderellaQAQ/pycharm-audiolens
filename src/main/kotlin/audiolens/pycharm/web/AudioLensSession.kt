@@ -9,6 +9,7 @@ import audiolens.pycharm.diagnostics.AudioLensDiagnostics
 import audiolens.pycharm.settings.AudioLensSettings
 import com.google.gson.Gson
 import com.google.gson.JsonObject
+import com.intellij.ide.actions.RevealFileAction
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.Logger
@@ -102,6 +103,7 @@ class AudioLensSession(
                             .onFailure { showError(it.message ?: "Cannot save audio.") }
                     }
                 }
+                "revealAudioInFolder" -> revealAudioInFolder()
                 "requestSelectionWavSave" -> requestSelectionSave(message)
                 "writeSelectionWavChunk" -> writeSelectionChunk(message)
                 "saveStreamedSelectionWav" -> saveStreamedSelection(message)
@@ -335,6 +337,15 @@ class AudioLensSession(
                     position += transferred
                 }
             }
+        }
+    }
+
+    private fun revealAudioInFolder() {
+        executor.execute {
+            runCatching {
+                require(Files.isRegularFile(source.path)) { "The audio file is no longer available on disk." }
+                RevealFileAction.openFile(source.path.toFile())
+            }.onFailure { showError(it.message ?: "Cannot open the audio folder.") }
         }
     }
 

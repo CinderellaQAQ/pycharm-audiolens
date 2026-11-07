@@ -25,6 +25,7 @@ export interface LocaleMessages {
   spectrogramSettings: string;
   help: string;
   downloadAudio: string;
+  revealAudioInFolder: string;
   downloadSelection: string;
   downloadSelectionWav: string;
   clearSelection: string;
