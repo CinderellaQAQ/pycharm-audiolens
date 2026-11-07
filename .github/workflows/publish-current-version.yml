@@ -1,0 +1,93 @@
+name: Publish current tagged version
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve version
+        id: version
+        shell: bash
+        run: |
+          version="$(node -p "require('./package.json').version")"
+          echo "version=${version}" >> "${GITHUB_OUTPUT}"
+          echo "tag=v${version}" >> "${GITHUB_OUTPUT}"
+
+      - name: Decide whether to publish
+        id: release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          if ! git rev-parse --verify --quiet "${TAG}^{commit}"; then
+            echo "publish=false" >> "${GITHUB_OUTPUT}"
+            echo "Tag ${TAG} does not exist; skipping."
+            exit 0
+          fi
+          if gh release view "${TAG}" >/dev/null 2>&1; then
+            echo "publish=false" >> "${GITHUB_OUTPUT}"
+            echo "Release ${TAG} already exists; skipping."
+            exit 0
+          fi
+          echo "publish=true" >> "${GITHUB_OUTPUT}"
+
+      - name: Check out tagged source
+        if: steps.release.outputs.publish == 'true'
+        env:
+          TAG: ${{ steps.version.outputs.tag }}
+        run: git checkout --detach "${TAG}"
+
+      - name: Set up Node.js
+        if: steps.release.outputs.publish == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Set up Java
+        if: steps.release.outputs.publish == 'true'
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Install web dependencies
+        if: steps.release.outputs.publish == 'true'
+        run: npm ci --ignore-scripts
+
+      - name: Verify web interface
+        if: steps.release.outputs.publish == 'true'
+        run: |
+          npm run typecheck
+          npm run test:web
+
+      - name: Build and test plugin
+        if: steps.release.outputs.publish == 'true'
+        run: ./gradlew test buildPlugin
+
+      - name: Create GitHub Release
+        if: steps.release.outputs.publish == 'true'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.version.outputs.tag }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          gh release create "${TAG}" \
+            "build/distributions/pycharm-audiolens-${VERSION}.zip" \
+            --title "AudioLens for PyCharm ${TAG}" \
+            --generate-notes
