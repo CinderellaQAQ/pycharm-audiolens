@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+    tags:
+      - "v*"
   workflow_dispatch:
 
 permissions:
@@ -13,7 +15,7 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out main
+      - name: Check out source
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
