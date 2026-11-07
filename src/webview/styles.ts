@@ -364,7 +364,7 @@ export function injectStyles(): void {
       position: relative;
       z-index: 1;
       display: grid;
-      grid-template-columns: 104px minmax(0, 1fr);
+      grid-template-columns: minmax(0, 1fr);
       gap: 0;
       min-height: 34px;
       align-items: stretch;
@@ -379,7 +379,7 @@ export function injectStyles(): void {
       border-bottom-color: var(--vscode-focusBorder);
     }
     .timelineRange {
-      display: flex;
+      display: none;
       align-items: center;
       justify-content: center;
       padding: 0 8px;
@@ -426,9 +426,9 @@ export function injectStyles(): void {
     .trackRow {
       position: relative;
       display: grid;
-      grid-template-columns: 104px minmax(0, 1fr);
-      height: var(--track-row-h, 280px);
-      min-height: 132px;
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: auto minmax(132px, var(--track-row-h, 280px));
+      min-height: 0;
       border: 1px solid var(--vscode-panel-border);
       border-radius: 6px;
       overflow: visible;
@@ -448,26 +448,36 @@ export function injectStyles(): void {
     .trackRow:first-child.isSelected::after {
       content: none;
     }
-    .trackSidebar {
+    .trackControls {
       display: flex;
       flex-direction: column;
-      align-items: stretch;
-      gap: 6px;
+      align-items: flex-start;
+      gap: 7px;
       padding: 8px;
-      overflow: hidden;
+      min-width: 0;
+      overflow: visible;
       border: 0;
-      border-right: 1px solid var(--vscode-panel-border);
-      border-radius: 5px 0 0 5px;
+      border-bottom: 1px solid var(--vscode-panel-border);
+      border-radius: 5px 5px 0 0;
       color: var(--vscode-descriptionForeground);
       background: var(--vscode-editor-background);
     }
+    .trackChannelControls,
+    .playbackRangeControls {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 7px;
+      min-width: 0;
+    }
     .trackTitle, .trackToggle, .trackMode {
       font: inherit;
-      width: 100%;
       text-align: center;
     }
     .trackToggle {
       min-height: 26px;
+      min-width: 52px;
+      padding: 2px 10px;
       border: 1px solid var(--vscode-button-border, transparent);
       border-radius: 4px;
       color: var(--vscode-button-secondaryForeground);
@@ -476,7 +486,9 @@ export function injectStyles(): void {
       cursor: pointer;
     }
     .trackTitle {
-      min-height: 26px;
+      height: 27px;
+      min-width: 52px;
+      padding: 0 10px;
       display: grid;
       place-items: center;
       border: 1px solid var(--vscode-panel-border);
@@ -507,7 +519,9 @@ export function injectStyles(): void {
       box-shadow: 0 0 0 1px var(--vscode-charts-orange, #d18616) inset;
     }
     .trackMode {
-      min-height: 26px;
+      height: 27px;
+      min-width: 78px;
+      padding: 2px 7px;
       color: var(--vscode-input-foreground);
       background: var(--vscode-input-background);
       border: 1px solid var(--vscode-input-border, transparent);
@@ -519,10 +533,22 @@ export function injectStyles(): void {
       grid-template-columns: 11px minmax(0, 1fr) 11px;
       align-items: center;
       column-gap: 2px;
+      width: 132px;
       min-height: 16px;
     }
+    .trackSliderGroup {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      min-width: 0;
+    }
+    .trackSliderLabel {
+      color: var(--vscode-descriptionForeground);
+      font-size: 11px;
+      white-space: nowrap;
+    }
     .trackGainControl {
-      margin-top: 2px;
+      margin-top: 0;
     }
     .trackSliderEnd {
       font-size: 10px;
@@ -609,9 +635,47 @@ export function injectStyles(): void {
         minmax(160px, var(--track-spec-fr, 0.62fr));
       min-width: 0;
       min-height: 0;
+      height: var(--track-row-h, 280px);
       gap: 0;
       overflow: hidden;
-      border-radius: 0 5px 5px 0;
+      border-radius: 0 0 5px 5px;
+    }
+    .playbackRangeTitle {
+      color: var(--vscode-foreground);
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .playbackRangeField {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      color: var(--vscode-descriptionForeground);
+      font-size: 11px;
+      white-space: nowrap;
+    }
+    .playbackRangeInput,
+    .playbackRangeUnit {
+      height: 27px;
+      box-sizing: border-box;
+      color: var(--vscode-input-foreground);
+      background: var(--vscode-input-background);
+      border: 1px solid var(--vscode-input-border, transparent);
+      border-radius: 4px;
+      font: inherit;
+    }
+    .playbackRangeInput {
+      width: 92px;
+      padding: 3px 7px;
+      font-variant-numeric: tabular-nums;
+    }
+    .playbackRangeUnit {
+      min-width: 66px;
+      padding: 2px 7px;
+    }
+    .playbackRangeInput[aria-invalid="true"] {
+      border-color: var(--vscode-inputValidation-errorBorder, #be1100);
+      background: var(--vscode-inputValidation-errorBackground, var(--vscode-input-background));
     }
     .trackRow[data-mode="waveform"] .trackBody,
     .trackRow[data-mode="spectrogram"] .trackBody {

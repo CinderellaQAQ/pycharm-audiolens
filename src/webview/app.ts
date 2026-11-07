@@ -182,6 +182,17 @@ type StreamedAudioResponse = Extract<ExtensionMessage, {
 }>;
 
 type TrackViewMode = "waveform" | "spectrogram" | "both";
+type PlaybackRangeUnit = "frames" | "seconds";
+
+interface PlaybackRangeControls {
+  container: HTMLElement;
+  title: HTMLElement;
+  startLabel: HTMLElement;
+  startInput: HTMLInputElement;
+  endLabel: HTMLElement;
+  endInput: HTMLInputElement;
+  unit: HTMLSelectElement;
+}
 
 interface TrackView {
   channel: number;
@@ -1470,6 +1481,7 @@ export class AudioLensApp {
   // 几何/分析的唯一样本真值（原生采样率）。audioBuffer 仅作播放载体，低采样率时会升采样。
   private track: DecodedTrack | undefined;
   private selection: TimeSelectionState | undefined;
+  private playbackRangeControls: PlaybackRangeControls | undefined;
   private selectionAnalysisVisible = false;
   private selectionPlaybackEnd: number | undefined;
   private isDraggingSelection = false;
@@ -2236,6 +2248,11 @@ export class AudioLensApp {
 
     try {
       if (this.elements.audio.paused) {
+        if (this.selection) {
+          this.playheadTime = this.selection.start;
+          this.selectionPlaybackEnd = this.selection.end;
+          this.elements.audio.currentTime = this.selection.start;
+        }
         this.ensurePlaybackGraph();
         if (this.playbackAudioContext?.state === "suspended") {
           await this.playbackAudioContext.resume();
@@ -2657,9 +2674,9 @@ export class AudioLensApp {
   }
 
   private onKeyDown(event: KeyboardEvent): void {
-    // 音轨侧栏的静音/独奏/视图/增益/声道平衡控件获得焦点后,空格仍应控制播放,
+    // 音轨顶部的静音/独奏/视图/增益/声道平衡控件获得焦点后,空格仍应控制播放,
     // 而不是触发控件默认行为(滚动、重复开关、展开下拉)。Enter/方向键等不在此拦截,保留控件本身操作。
-    if (isEditableTarget(event.target) && !this.isTrackSidebarControl(event.target)) {
+    if (isEditableTarget(event.target) && !this.isTrackControl(event.target)) {
       return;
     }
     if ((event.metaKey || event.ctrlKey) && !event.shiftKey && !event.altKey && event.key.toLowerCase() === "f") {
@@ -2677,8 +2694,8 @@ export class AudioLensApp {
     }
   }
 
-  private isTrackSidebarControl(target: EventTarget | null): boolean {
-    return target instanceof HTMLElement && target.closest(".trackSidebar") !== null;
+  private isTrackControl(target: EventTarget | null): boolean {
+    return target instanceof HTMLElement && target.closest(".trackControls") !== null;
   }
 
   private handleEscape(): void {
@@ -2714,6 +2731,7 @@ export class AudioLensApp {
       this.selectionAnalysisVisible = false;
       this.selectionPlaybackEnd = undefined;
       this.updateSelectionAnalysis();
+      this.syncPlaybackRangeControls();
       this.redrawVisuals();
       return;
     }
@@ -3106,6 +3124,7 @@ export class AudioLensApp {
     this.selectionAnalysisVisible = false;
     this.selectionPlaybackEnd = undefined;
     this.updateSelectionAnalysis();
+    this.syncPlaybackRangeControls();
     this.redrawVisuals();
   }
 
@@ -3417,6 +3436,7 @@ export class AudioLensApp {
     this.selection = undefined;
     this.selectionPlaybackEnd = undefined;
     this.hideSelectionBox();
+    this.syncPlaybackRangeControls();
     this.syncControls();
     this.savePreferencesSoon();
     this.updateSelectionAnalysis();
@@ -3811,6 +3831,7 @@ export class AudioLensApp {
   private renderTrackList(): void {
     this.elements.trackList.replaceChildren();
     this.trackViews = [];
+    this.playbackRangeControls = undefined;
     const channelCount = this.audioChannelCount();
     if (channelCount === 0) {
       this.elements.trackList.hidden = true;
@@ -3828,8 +3849,10 @@ export class AudioLensApp {
     row.className = "trackRow";
     row.dataset.channel = String(channel);
 
-    const sidebar = document.createElement("div");
-    sidebar.className = "trackSidebar";
+    const controls = document.createElement("div");
+    controls.className = "trackControls";
+    const channelControls = document.createElement("div");
+    channelControls.className = "trackChannelControls";
     const title = document.createElement("div");
     title.className = "trackTitle";
     title.textContent = `CH ${channel + 1}`;
@@ -3849,7 +3872,13 @@ export class AudioLensApp {
     const panSlider = this.createTrackSlider("pan");
     const pan = defaultChannelPan(this.audioChannelCount(), channel);
     panSlider.input.value = String(pan * 100);
-    sidebar.append(title, mute, solo, mode, gainSlider.control, panSlider.control);
+    const gainGroup = this.createTrackSliderGroup("trackGainLabel", this.messages.trackGain, gainSlider.control);
+    const panGroup = this.createTrackSliderGroup("trackPanLabel", this.messages.trackPan, panSlider.control);
+    channelControls.append(title, mute, solo, mode, gainGroup, panGroup);
+    controls.append(channelControls);
+    if (channel === 0) {
+      controls.append(this.createPlaybackRangeControls());
+    }
 
     const body = document.createElement("div");
     body.className = "trackBody";
@@ -3872,7 +3901,7 @@ export class AudioLensApp {
     body.append(waveformWrap, spectrogramWrap);
     const rowHandle = document.createElement("div");
     rowHandle.className = "trackRowHandle";
-    row.append(sidebar, body, rowHandle);
+    row.append(controls, body, rowHandle);
 
     const view: TrackView = {
       channel,
@@ -4094,8 +4123,13 @@ export class AudioLensApp {
         this.populateTrackModeOptions(modeSelect);
         modeSelect.value = value;
       }
+      const gainLabel = view.row.querySelector<HTMLElement>(".trackGainLabel");
+      const panLabel = view.row.querySelector<HTMLElement>(".trackPanLabel");
+      if (gainLabel) gainLabel.textContent = this.messages.trackGain;
+      if (panLabel) panLabel.textContent = this.messages.trackPan;
       this.syncTrackSliderHints(view);
     }
+    this.updatePlaybackRangeLabels();
   }
 
   private populateTrackModeOptions(select: HTMLSelectElement): void {
@@ -4146,6 +4180,191 @@ export class AudioLensApp {
     trackWrap.append(ticks, input);
     control.append(minLabel, trackWrap, maxLabel);
     return { control, input };
+  }
+
+  private createTrackSliderGroup(labelClass: string, labelText: string, control: HTMLElement): HTMLDivElement {
+    const group = document.createElement("div");
+    group.className = "trackSliderGroup";
+    const label = document.createElement("span");
+    label.className = `trackSliderLabel ${labelClass}`;
+    label.textContent = labelText;
+    group.append(label, control);
+    return group;
+  }
+
+  private createPlaybackRangeControls(): HTMLDivElement {
+    const container = document.createElement("div");
+    container.className = "playbackRangeControls";
+    const title = document.createElement("span");
+    title.className = "playbackRangeTitle";
+
+    const startField = document.createElement("label");
+    startField.className = "playbackRangeField";
+    const startLabel = document.createElement("span");
+    const startInput = document.createElement("input");
+    startInput.className = "playbackRangeInput";
+    startInput.type = "text";
+    startInput.inputMode = "decimal";
+    startField.append(startLabel, startInput);
+
+    const endField = document.createElement("label");
+    endField.className = "playbackRangeField";
+    const endLabel = document.createElement("span");
+    const endInput = document.createElement("input");
+    endInput.className = "playbackRangeInput";
+    endInput.type = "text";
+    endInput.inputMode = "decimal";
+    endField.append(endLabel, endInput);
+
+    const unit = document.createElement("select");
+    unit.className = "playbackRangeUnit";
+    unit.setAttribute("aria-label", this.playbackRangeUnitAriaLabel());
+    unit.append(new Option("", "frames"), new Option("", "seconds"));
+    unit.value = "frames";
+
+    container.append(title, startField, endField, unit);
+    this.playbackRangeControls = { container, title, startLabel, startInput, endLabel, endInput, unit };
+    this.updatePlaybackRangeLabels();
+    this.syncPlaybackRangeControls();
+
+    const commit = (field: "start" | "end") => this.commitPlaybackRangeControls(field);
+    startInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" && !event.metaKey && !event.ctrlKey && !event.altKey && !event.shiftKey) {
+        event.preventDefault();
+        commit("start");
+      }
+    });
+    endInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" && !event.metaKey && !event.ctrlKey && !event.altKey && !event.shiftKey) {
+        event.preventDefault();
+        commit("end");
+      }
+    });
+    startInput.addEventListener("blur", () => this.syncPlaybackRangeControls());
+    endInput.addEventListener("blur", () => this.syncPlaybackRangeControls());
+    unit.addEventListener("change", () => this.syncPlaybackRangeControls());
+    return container;
+  }
+
+  private updatePlaybackRangeLabels(): void {
+    const controls = this.playbackRangeControls;
+    if (!controls) return;
+    controls.title.textContent = this.playbackRangeTitleText();
+    controls.startLabel.textContent = this.messages.selectionStart;
+    controls.endLabel.textContent = this.messages.selectionEnd;
+    controls.startInput.setAttribute("aria-label", this.messages.selectionStart);
+    controls.endInput.setAttribute("aria-label", this.messages.selectionEnd);
+    controls.unit.setAttribute("aria-label", this.playbackRangeUnitAriaLabel());
+    controls.unit.options[0].textContent = this.playbackRangeFramesText();
+    controls.unit.options[1].textContent = this.playbackRangeSecondsText();
+  }
+
+  private playbackRangeTitleText(): string {
+    if (this.currentLocale === "zh-CN") return "播放范围";
+    if (this.currentLocale === "zh-TW") return "播放範圍";
+    if (this.currentLocale === "ja") return "再生範囲";
+    if (this.currentLocale === "ko") return "재생 범위";
+    return "Playback range";
+  }
+
+  private playbackRangeFramesText(): string {
+    if (this.currentLocale === "zh-CN") return "帧";
+    if (this.currentLocale === "zh-TW") return "幀";
+    if (this.currentLocale === "ja") return "フレーム";
+    if (this.currentLocale === "ko") return "프레임";
+    return "Frames";
+  }
+
+  private playbackRangeSecondsText(): string {
+    if (this.currentLocale === "zh-CN") return "秒";
+    if (this.currentLocale === "zh-TW") return "秒";
+    if (this.currentLocale === "ja") return "秒";
+    if (this.currentLocale === "ko") return "초";
+    return "Seconds";
+  }
+
+  private playbackRangeUnitAriaLabel(): string {
+    if (this.currentLocale === "zh-CN") return "播放范围单位";
+    if (this.currentLocale === "zh-TW") return "播放範圍單位";
+    return "Playback range unit";
+  }
+
+  private playbackRangeUnit(): PlaybackRangeUnit {
+    return this.playbackRangeControls?.unit.value === "seconds" ? "seconds" : "frames";
+  }
+
+  private syncPlaybackRangeControls(): void {
+    const controls = this.playbackRangeControls;
+    if (!controls || !this.hasAudio()) return;
+    const range = this.selection ?? { start: 0, end: this.audioDuration() };
+    const unit = this.playbackRangeUnit();
+    if (unit === "frames") {
+      const sampleRate = this.audioSampleRate();
+      controls.startInput.value = String(Math.round(range.start * sampleRate));
+      controls.endInput.value = String(this.selection ? Math.round(range.end * sampleRate) : this.audioLength());
+    } else {
+      controls.startInput.value = formatPlaybackRangeSeconds(range.start);
+      controls.endInput.value = formatPlaybackRangeSeconds(range.end);
+    }
+    for (const input of [controls.startInput, controls.endInput]) {
+      input.removeAttribute("aria-invalid");
+      input.removeAttribute("title");
+    }
+  }
+
+  private commitPlaybackRangeControls(changedField: "start" | "end"): void {
+    const controls = this.playbackRangeControls;
+    if (!controls || !this.hasAudio()) return;
+    const unit = this.playbackRangeUnit();
+    const start = this.parsePlaybackRangeValue(controls.startInput.value, unit);
+    const end = this.parsePlaybackRangeValue(controls.endInput.value, unit);
+    const changedInput = changedField === "start" ? controls.startInput : controls.endInput;
+    if (start === undefined || end === undefined) {
+      this.markPlaybackRangeInvalid(changedInput, this.playbackRangeNumberErrorText());
+      return;
+    }
+    const duration = this.audioDuration();
+    const normalizedStart = clamp(start, 0, duration);
+    const normalizedEnd = clamp(end, 0, duration);
+    if (normalizedEnd <= normalizedStart) {
+      this.markPlaybackRangeInvalid(changedInput, this.playbackRangeOrderErrorText());
+      return;
+    }
+    this.selection = { start: normalizedStart, end: normalizedEnd };
+    this.selectionAnalysisVisible = false;
+    const wasPaused = this.isPlaybackPaused();
+    this.selectionPlaybackEnd = wasPaused ? undefined : normalizedEnd;
+    if (changedField === "start") {
+      this.playheadTime = normalizedStart;
+      this.setPlaybackPosition(normalizedStart);
+      this.updateClock();
+    } else if (!wasPaused) {
+      this.setPlaybackPosition(this.currentPlaybackTime());
+    }
+    this.updateSelectionAnalysis();
+    this.syncPlaybackRangeControls();
+    this.redrawVisuals();
+  }
+
+  private parsePlaybackRangeValue(value: string, unit: PlaybackRangeUnit): number | undefined {
+    const parsed = Number(value.trim());
+    if (!Number.isFinite(parsed) || parsed < 0) return undefined;
+    return unit === "frames" ? Math.round(parsed) / this.audioSampleRate() : parsed;
+  }
+
+  private markPlaybackRangeInvalid(input: HTMLInputElement, message: string): void {
+    input.setAttribute("aria-invalid", "true");
+    input.title = message;
+    input.focus();
+    input.select();
+  }
+
+  private playbackRangeNumberErrorText(): string {
+    return this.currentLocale === "zh-CN" ? "请输入有效的非负数值。" : "Enter a valid non-negative value.";
+  }
+
+  private playbackRangeOrderErrorText(): string {
+    return this.currentLocale === "zh-CN" ? "结束位置必须大于开始位置。" : "The end must be greater than the start.";
   }
 
   private bindTrackSlider(
@@ -5499,15 +5718,20 @@ export class AudioLensApp {
     if (!this.hasAudio()) {
       return;
     }
-    const time = this.timeFromCanvasX(canvas, clientX);
-    this.selection = undefined;
+    const duration = this.audioDuration();
+    const frameDuration = 1 / this.audioSampleRate();
+    const time = clamp(this.timeFromCanvasX(canvas, clientX), 0, Math.max(0, duration - frameDuration));
+    let end = this.selection?.end ?? duration;
+    if (end <= time) end = duration;
+    this.selection = end > time ? { start: time, end } : undefined;
     this.selectionAnalysisVisible = false;
-    this.selectionPlaybackEnd = undefined;
+    this.selectionPlaybackEnd = this.isPlaybackPaused() ? undefined : this.selection?.end;
     this.updateSelectionAnalysis();
-    this.playheadTime = clamp(time, 0, this.audioDuration());
+    this.playheadTime = time;
     this.dragPlayheadTime = undefined;
     this.setPlaybackPosition(this.playheadTime);
     this.updateClock();
+    this.syncPlaybackRangeControls();
     this.redrawVisuals();
   }
 
@@ -5541,6 +5765,7 @@ export class AudioLensApp {
     this.selectionPlaybackEnd = this.isPlaybackPaused() ? undefined : selection.end;
     this.setPlaybackPosition(selection.start);
     this.updateClock();
+    this.syncPlaybackRangeControls();
     this.updateSelectionAnalysis();
     this.redrawVisuals();
   }
@@ -6392,6 +6617,10 @@ function sanitizeFileNameBase(fileName: string): string {
 
 function formatSelectionTime(time: number): string {
   return Math.max(0, time).toFixed(3);
+}
+
+function formatPlaybackRangeSeconds(time: number): string {
+  return Math.max(0, time).toFixed(6).replace(/\.?0+$/, "");
 }
 
 async function bytesToBase64Async(bytes: Uint8Array): Promise<string> {

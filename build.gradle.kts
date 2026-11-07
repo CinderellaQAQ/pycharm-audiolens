@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "io.github.simzhou.audiolens"
-version = "1.0.2"
+version = "1.1.0"
 
 val localPycharmPath = providers.gradleProperty("localPycharmPath").orNull
 val verificationPycharmPaths = providers.gradleProperty("verificationPycharmPaths").orNull
@@ -83,9 +83,10 @@ intellijPlatform {
             untilBuild = "261.*"
         }
         changeNotes = """
-            <p>AudioLens for PyCharm 1.0.2.</p>
+            <p>AudioLens for PyCharm 1.1.0.</p>
             <ul>
-              <li>Marks the exclusive audio file editor provider as indexing-safe, preventing the first-open HIDE_DEFAULT_EDITOR internal error.</li>
+              <li>Moves channel, view, gain, and pan controls above each audio track.</li>
+              <li>Adds frame- or second-based playback range inputs synchronized with waveform clicks and dragged selections.</li>
             </ul>
         """.trimIndent()
     }

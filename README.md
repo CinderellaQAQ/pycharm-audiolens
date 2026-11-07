@@ -6,7 +6,7 @@
 
 ## 下载
 
-[下载 v1.0.2（pycharm-audiolens-1.0.2.zip）](https://github.com/CinderellaQAQ/pycharm-audiolens/releases/download/v1.0.2/pycharm-audiolens-1.0.2.zip)
+[下载 v1.1.0（pycharm-audiolens-1.1.0.zip）](https://github.com/CinderellaQAQ/pycharm-audiolens/releases/download/v1.1.0/pycharm-audiolens-1.1.0.zip)
 
 在 PyCharm 的“设置/偏好设置 → 插件”中选择“从磁盘安装插件”，然后选择下载的 ZIP 文件即可。支持 PyCharm 内部版本 251–261。
 
